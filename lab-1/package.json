@@ -1,0 +1,13 @@
+{
+  "name": "lab-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "s24261",
+  "dependencies": {
+    "jest": "^29.7.0"
+  }
+}
