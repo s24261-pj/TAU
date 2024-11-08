@@ -1,0 +1,13 @@
+{
+  "name": "lab-2",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "s24261",
+  "dependencies": {
+    "jest": "^29.7.0",
+    "selenium-webdriver": "^4.25.0"
+  }
+}
