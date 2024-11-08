@@ -9,5 +9,8 @@
   "dependencies": {
     "jest": "^29.7.0",
     "selenium-webdriver": "^4.25.0"
+  },
+  "devDependencies": {
+    "geckodriver": "^5.0.0"
   }
 }
