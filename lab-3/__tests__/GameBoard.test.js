@@ -20,51 +20,63 @@ describe('GameBoard', () => {
   });
 
   test('should place obstacles represented as ⬛', () => {
-    const flatBoard = game.board.flat();
-    const obstacleCount = flatBoard.filter(cell => cell === 'X').length;
+    const obstacleCount = game.board.flat().filter(cell => cell === 'X').length;
     expect(obstacleCount).toBeGreaterThan(0);
   });
 
-  test('should move player correctly', () => {
+  test('should move player to the right', () => {
     const { x, y } = game.currentPosition;
 
     if (!game.isOutOfBounds(x, y + 1) && game.board[x][y + 1] !== 'X') {
-      expect(game.moveRight()).toBe(false);
+      const reachedStop = game.moveRight();
       expect(game.currentPosition).toEqual({ x, y: y + 1 });
-      game.currentPosition = { x, y };
+      expect(reachedStop).toBe(false);
     }
+  });
+
+  test('should move player down', () => {
+    const { x, y } = game.currentPosition;
 
     if (!game.isOutOfBounds(x + 1, y) && game.board[x + 1][y] !== 'X') {
-      expect(game.moveDown()).toBe(false);
+      const reachedStop = game.moveDown();
       expect(game.currentPosition).toEqual({ x: x + 1, y });
-      game.currentPosition = { x, y };
+      expect(reachedStop).toBe(false);
     }
+  });
 
-    if (!game.isOutOfBounds(x - 1, y) && game.board[x - 1][y] !== 'X') {
-      expect(game.moveUp()).toBe(false);
-      expect(game.currentPosition).toEqual({ x: x - 1, y });
-      game.currentPosition = { x, y };
+  test('should move player up', () => {
+    const { x, y } = game.currentPosition;
+    game.currentPosition = { x: x + 1, y };
+
+    if (!game.isOutOfBounds(x, y) && game.board[x][y] !== 'X') {
+      const reachedStop = game.moveUp();
+      expect(game.currentPosition).toEqual({ x, y });
+      expect(reachedStop).toBe(false);
     }
+  });
 
-    if (!game.isOutOfBounds(x, y - 1) && game.board[x][y - 1] !== 'X') {
-      expect(game.moveLeft()).toBe(false);
-      expect(game.currentPosition).toEqual({ x, y: y - 1 });
-      game.currentPosition = { x, y };
+  test('should move player to the left', () => {
+    const { x, y } = game.currentPosition;
+    game.currentPosition = { x, y: y + 1 };
+
+    if (!game.isOutOfBounds(x, y) && game.board[x][y] !== 'X') {
+      const reachedStop = game.moveLeft();
+      expect(game.currentPosition).toEqual({ x, y });
+      expect(reachedStop).toBe(false);
     }
   });
 
   test('should not allow player to move into obstacles', () => {
     const { x, y } = game.currentPosition;
+    game.board[x][y + 1] = 'X';
 
-    if (!game.isOutOfBounds(x, y + 1)) {
-      game.board[x][y + 1] = 'X';
-      expect(game.moveRight()).toBe(false);
-      expect(game.currentPosition).toEqual({ x, y });
-    }
+    expect(game.moveRight()).toBe(false);
+    expect(game.currentPosition).toEqual({ x, y });
   });
 
   test('should not allow player to move out of bounds', () => {
     game.currentPosition = { x: 0, y: 0 };
+
     expect(game.moveUp()).toBe(false);
     expect(game.moveLeft()).toBe(false);
     expect(game.currentPosition).toEqual({ x: 0, y: 0 });
@@ -72,6 +84,7 @@ describe('GameBoard', () => {
 
   test('should correctly identify when player reaches stop', () => {
     game.currentPosition = { ...game.stop };
+
     expect(game.moveRight()).toBe(false);
     expect(game.board[game.stop.x][game.stop.y]).toBe('B');
   });

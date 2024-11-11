@@ -1,72 +1,59 @@
+const { START, STOP, OBSTACLE, EMPTY, PLAYER, OBSTACLE_RATIO } = require('./constants');
+const { isAdjacent, randomPosition } = require('./utils');
+
 class GameBoard {
   constructor(rows, cols) {
     this.rows = rows;
     this.cols = cols;
-    this.board = this.generateBoard();
-    this.start = this.placeStartOrStop('A');
-    this.stop = this.placeStartOrStop('B', this.start);
+    this.board = this.createEmptyBoard();
+    this.start = this.placeSymbolOnEdge(START);
+    this.stop = this.placeSymbolOnEdge(STOP, this.start);
     this.placeObstacles();
     this.currentPosition = { ...this.start };
   }
 
-  generateBoard() {
-    return Array.from({ length: this.rows }, () => Array(this.cols).fill(' '));
+  createEmptyBoard() {
+    return Array.from({ length: this.rows }, () => Array(this.cols).fill(EMPTY));
   }
 
-  placeStartOrStop(symbol, exclude) {
+  placeSymbolOnEdge(symbol, exclude) {
     let pos;
     do {
       pos = {
         x: Math.floor(Math.random() * this.rows),
-        y: Math.random() < 0.5 ? 0 : this.cols - 1
+        y: Math.random() < 0.5 ? 0 : this.cols - 1,
       };
-    } while (exclude && this.isAdjacent(pos, exclude));
+    } while (exclude && isAdjacent(pos, exclude));
     this.board[pos.x][pos.y] = symbol;
     return pos;
   }
 
-  isAdjacent(pos1, pos2) {
-    return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y) === 1;
-  }
-
   placeObstacles() {
-    const obstacleCount = Math.floor((this.rows * this.cols) / 4);
-    for (let i = 0; i < obstacleCount; i++) {
-      let pos;
-      do {
-        pos = {
-          x: Math.floor(Math.random() * this.rows),
-          y: Math.floor(Math.random() * this.cols)
-        };
-      } while (this.board[pos.x][pos.y] !== ' ');
-      this.board[pos.x][pos.y] = 'X';
+    const obstacleCount = Math.floor(this.rows * this.cols * OBSTACLE_RATIO);
+    let placedObstacles = 0;
+
+    while (placedObstacles < obstacleCount) {
+      const pos = randomPosition(this.rows, this.cols);
+      if (this.board[pos.x][pos.y] === EMPTY) {
+        this.board[pos.x][pos.y] = OBSTACLE;
+        placedObstacles++;
+      }
     }
   }
 
-  moveUp() {
-    return this.move(-1, 0);
-  }
-
-  moveDown() {
-    return this.move(1, 0);
-  }
-
-  moveLeft() {
-    return this.move(0, -1);
-  }
-
-  moveRight() {
-    return this.move(0, 1);
-  }
+  moveUp() { return this.move(-1, 0); }
+  moveDown() { return this.move(1, 0); }
+  moveLeft() { return this.move(0, -1); }
+  moveRight() { return this.move(0, 1); }
 
   move(dx, dy) {
     const newX = this.currentPosition.x + dx;
     const newY = this.currentPosition.y + dy;
 
-    if (this.isOutOfBounds(newX, newY) || this.board[newX][newY] === 'X') return false;
+    if (this.isOutOfBounds(newX, newY) || this.board[newX][newY] === OBSTACLE) return false;
 
     this.currentPosition = { x: newX, y: newY };
-    return this.board[newX][newY] === 'B';
+    return this.board[newX][newY] === STOP;
   }
 
   isOutOfBounds(x, y) {
@@ -75,25 +62,31 @@ class GameBoard {
 
   printBoard() {
     const displayBoard = this.board.map(row => [...row]);
-    displayBoard[this.currentPosition.x][this.currentPosition.y] = 'P';
+    displayBoard[this.currentPosition.x][this.currentPosition.y] = PLAYER;
 
     console.clear();
     console.log('┌' + '───'.repeat(this.cols) + '┐');
     for (let i = 0; i < this.rows; i++) {
       let row = '│ ';
       for (let j = 0; j < this.cols; j++) {
-        const cell = displayBoard[i][j];
-        if (cell === ' ') row += '🟩 ';
-        else if (cell === 'A') row += '🟦 ';
-        else if (cell === 'B') row += '🟥 ';
-        else if (cell === 'X') row += '⬛ ';
-        else if (cell === 'P') row += '🟨 ';
+        row += this.getSymbol(displayBoard[i][j]) + ' ';
       }
       row += '│';
       console.log(row);
     }
     console.log('└' + '───'.repeat(this.cols) + '┘');
-    console.log('\nUżyj strzałek, aby się poruszać. Dotarcie do 🟥 kończy grę!');
+    console.log('\nUse the arrow keys to move. Reaching 🟥 ends the game!');
+  }
+
+  getSymbol(cell) {
+    switch(cell) {
+      case EMPTY: return '🟩';
+      case START: return '🟦';
+      case STOP: return '🟥';
+      case OBSTACLE: return '⬛';
+      case PLAYER: return '🟨';
+      default: return cell;
+    }
   }
 }
 
