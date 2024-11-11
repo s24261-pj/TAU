@@ -68,3 +68,11 @@ Each file tests a specific scenario on a designated website. These scenarios are
 2. Install necessary dependencies:
    ```bash
    npm install
+   
+## Videos
+
+https://github.com/user-attachments/assets/2cc90dec-8dd7-4645-a730-c6229154c0fa
+
+https://github.com/user-attachments/assets/d728d5ea-124e-45b3-8894-bb3ef4ff68e2
+
+https://github.com/user-attachments/assets/6c03555b-b762-47b5-9e64-41c724af994f
